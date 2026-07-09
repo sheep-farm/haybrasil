@@ -1,8 +1,8 @@
 [plugin]
 name = "haybrasil"
-version = "0.1.0"
+version = "0.2.0"
 author = "sheep-farm"
-description = "Brazilian macroeconomic data plugin for Hayashi"
+description = "Brazilian macroeconomic data plugin for Hayashi with real API integration"
 license = "MIT"
 repository = "https://github.com/sheep-farm/haybrasil"
 

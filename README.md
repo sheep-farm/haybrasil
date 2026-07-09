@@ -1,6 +1,6 @@
 # haybrasil
 
-Brazilian macroeconomic data plugin for [Hayashi](https://github.com/sheep-farm/hayashi) — provides access to data from BCB (Banco Central do Brasil), IBGE, and CVM (Comissão de Valores Mobiliários).
+Brazilian macroeconomic data plugin for [Hayashi](https://github.com/sheep-farm/hayashi) — provides access to real-time data from BCB (Banco Central do Brasil), IBGE, and CVM (Comissão de Valores Mobiliários) through official APIs.
 
 ## Install
 
@@ -22,7 +22,7 @@ cp target/release/libhaybrasil.so ~/.hay/packages/sheep-farm/haybrasil.so
 ```hayashi
 import("sheep-farm/haybrasil", as=br)
 
-// Get Selic rate from BCB
+// Get Selic rate from BCB (real-time data)
 let selic = br::bcb_selic(432, "2024-01-01", "2024-01-30")
 print(selic)
 
@@ -75,80 +75,80 @@ print(data_iso)
 ### BCB (Banco Central do Brasil)
 
 #### `bcb_selic(series_code, start_date, end_date)`
-Get Selic rate from BCB API.
+Get Selic rate from BCB API (real-time data).
 
 - `series_code`: BCB time series code (e.g., 432 for Selic meta)
 - `start_date`: start date in YYYY-MM-DD format
 - `end_date`: end date in YYYY-MM-DD format
 
-Returns a dict with `date` and `value` keys.
+Returns a dict with `date` and `value` keys with real data from BCB API.
 
 #### `bcb_pib(series_code, start_date, end_date)`
-Get GDP (PIB) data from BCB.
+Get GDP (PIB) data from BCB API.
 
 - `series_code`: BCB time series code (e.g., 21911 for PIB acumulado)
 - `start_date`: start date in YYYY-MM-DD format
 - `end_date`: end date in YYYY-MM-DD format
 
-Returns a dict with `quarter` and `pib_brl` keys.
+Returns a dict with `date` and `pib_brl` keys with real data from BCB API.
 
 #### `bcb_reservas_internacionais(start_date, end_date)`
-Get international reserves from BCB.
+Get international reserves from BCB API.
 
 - `start_date`: start date in YYYY-MM-DD format
 - `end_date`: end date in YYYY-MM-DD format
 
-Returns a dict with `date` and `reserves_usd` keys.
+Returns a dict with `date` and `reserves_usd` keys with real data from BCB API.
 
 ### IBGE (Instituto Brasileiro de Geografia e Estatística)
 
 #### `ibge_pib_municipal(uf, year)`
-Get municipal GDP data from IBGE.
+Get municipal GDP data from IBGE API.
 
 - `uf`: state code (e.g., 43 for RS)
 - `year`: year of data
 
-Returns a dict with `municipality` and `pib_milhoes` keys.
+Returns a dict with `municipality` and `pib_milhoes` keys with real data from IBGE API.
 
 #### `ibge_inflacao_ipc_a12(start_date, end_date)`
-Get IPCA inflation (12-month accumulated) from IBGE.
+Get IPCA inflation (12-month accumulated) from IBGE API.
 
 - `start_date`: start date in YYYY-MM-DD format
 - `end_date`: end date in YYYY-MM-DD format
 
-Returns a dict with `month` and `ipca_a12` keys.
+Returns a dict with `month` and `ipca_a12` keys with real data from IBGE API.
 
 #### `ibge_taxa_desemprego(start_date, end_date)`
-Get unemployment rate from IBGE.
+Get unemployment rate from IBGE API.
 
 - `start_date`: start date in YYYY-MM-DD format
 - `end_date`: end date in YYYY-MM-DD format
 
-Returns a dict with `month` and `unemployment_rate` keys.
+Returns a dict with `month` and `unemployment_rate` keys with real data from IBGE API.
 
 ### CVM (Comissão de Valores Mobiliários)
 
 #### `cvm_empresas_cia_aberta(cnpj)`
-Get company data from CVM.
+Get company data from CVM official database.
 
 - `cnpj`: company CNPJ
 
-Returns a dict with company information.
+Returns a dict with company information from CVM database.
 
 #### `cvm_demonstracoes_financeiras(cnpj, year)`
-Get financial statements from CVM.
+Get financial statements from CVM official database.
 
 - `cnpj`: company CNPJ
 - `year`: year of statements
 
-Returns a dict with financial metrics.
+Returns a dict with financial metrics from CVM database.
 
 #### `cvm_fii_codigo(codigo)`
-Get FII (Fundo de Investimento Imobiliário) data from CVM.
+Get FII (Fundo de Investimento Imobiliário) data from CVM official database.
 
 - `codigo`: FII code (e.g., HGLG11)
 
-Returns a dict with FII information.
+Returns a dict with FII information from CVM database.
 
 ### Utilities
 
@@ -188,9 +188,15 @@ Common BCB time series codes:
 
 ## Data Sources
 
-- **BCB**: Banco Central do Brasil API (https://api.bcb.gov.br)
-- **IBGE**: Instituto Brasileiro de Geografia e Estatística (https://www.ibge.gov.br)
-- **CVM**: Comissão de Valores Mobiliários (https://www.gov.br/cvm)
+- **BCB**: Banco Central do Brasil API (https://api.bcb.gov.br) - Real-time economic data
+- **IBGE**: Instituto Brasileiro de Geografia e Estatística (https://servicodados.ibge.gov.br) - Official statistics
+- **CVM**: Comissão de Valores Mobiliários (https://dados.cvm.gov.br) - Official company and financial data
+
+## Error Handling
+
+All functions return error indicators if API calls fail:
+- Numeric functions return `{"error": [-1.0]}` on failure
+- String functions return `{"error": "error message"}` on failure
 
 ## Development
 
