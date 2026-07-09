@@ -1,8 +1,8 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
+use chrono::{Datelike, NaiveDate};
 use hayashi_plugin_sdk::{hayashi_fn, hayashi_plugin};
-use std::collections::HashMap;
 use serde::Deserialize;
-use chrono::{NaiveDate, Datelike};
+use std::collections::HashMap;
 
 hayashi_plugin!();
 
@@ -28,21 +28,27 @@ struct IBGEDataPoint {
 /// start_date: start date in YYYY-MM-DD format
 /// end_date: end date in YYYY-MM-DD format
 #[hayashi_fn]
-pub fn bcb_selic(series_code: i64, start_date: String, end_date: String) -> HashMap<String, Vec<f64>> {
+pub fn bcb_selic(
+    series_code: i64,
+    start_date: String,
+    end_date: String,
+) -> HashMap<String, Vec<f64>> {
     let url = format!(
         "https://api.bcb.gov.br/dados/serie/bcdata.sgs.{}/dados?formato=json&dataInicial={}&dataFinal={}",
         series_code, start_date, end_date
     );
-    
+
     match fetch_bcb_data(&url) {
         Ok(data) => {
-            let dates: Vec<f64> = data.iter()
+            let dates: Vec<f64> = data
+                .iter()
                 .filter_map(|d| parse_date_to_float(&d.data))
                 .collect();
-            let values: Vec<f64> = data.iter()
+            let values: Vec<f64> = data
+                .iter()
                 .filter_map(|d| d.valor.replace(',', ".").parse::<f64>().ok())
                 .collect();
-            
+
             let mut result = HashMap::new();
             result.insert("date".to_string(), dates);
             result.insert("value".to_string(), values);
@@ -62,21 +68,27 @@ pub fn bcb_selic(series_code: i64, start_date: String, end_date: String) -> Hash
 /// start_date: start date in YYYY-MM-DD format
 /// end_date: end date in YYYY-MM-DD format
 #[hayashi_fn]
-pub fn bcb_pib(series_code: i64, start_date: String, end_date: String) -> HashMap<String, Vec<f64>> {
+pub fn bcb_pib(
+    series_code: i64,
+    start_date: String,
+    end_date: String,
+) -> HashMap<String, Vec<f64>> {
     let url = format!(
         "https://api.bcb.gov.br/dados/serie/bcdata.sgs.{}/dados?formato=json&dataInicial={}&dataFinal={}",
         series_code, start_date, end_date
     );
-    
+
     match fetch_bcb_data(&url) {
         Ok(data) => {
-            let dates: Vec<f64> = data.iter()
+            let dates: Vec<f64> = data
+                .iter()
                 .filter_map(|d| parse_date_to_float(&d.data))
                 .collect();
-            let values: Vec<f64> = data.iter()
+            let values: Vec<f64> = data
+                .iter()
                 .filter_map(|d| d.valor.replace(',', ".").parse::<f64>().ok())
                 .collect();
-            
+
             let mut result = HashMap::new();
             result.insert("date".to_string(), dates);
             result.insert("pib_brl".to_string(), values);
@@ -95,21 +107,26 @@ pub fn bcb_pib(series_code: i64, start_date: String, end_date: String) -> HashMa
 /// start_date: start date in YYYY-MM-DD format
 /// end_date: end date in YYYY-MM-DD format
 #[hayashi_fn]
-pub fn bcb_reservas_internacionais(start_date: String, end_date: String) -> HashMap<String, Vec<f64>> {
+pub fn bcb_reservas_internacionais(
+    start_date: String,
+    end_date: String,
+) -> HashMap<String, Vec<f64>> {
     let url = format!(
         "https://api.bcb.gov.br/dados/serie/bcdata.sgs.223/dados?formato=json&dataInicial={}&dataFinal={}",
         start_date, end_date
     );
-    
+
     match fetch_bcb_data(&url) {
         Ok(data) => {
-            let dates: Vec<f64> = data.iter()
+            let dates: Vec<f64> = data
+                .iter()
                 .filter_map(|d| parse_date_to_float(&d.data))
                 .collect();
-            let values: Vec<f64> = data.iter()
+            let values: Vec<f64> = data
+                .iter()
                 .filter_map(|d| d.valor.replace(',', ".").parse::<f64>().ok())
                 .collect();
-            
+
             let mut result = HashMap::new();
             result.insert("date".to_string(), dates);
             result.insert("reserves_usd".to_string(), values);
@@ -133,16 +150,15 @@ pub fn ibge_pib_municipal(uf: i64, year: i64) -> HashMap<String, Vec<f64>> {
         "https://servicodados.ibge.gov.br/api/v3/agregados?periodo={}&codigoregiao={}&classificacao=58/all/variables/5930",
         year, uf
     );
-    
+
     match fetch_ibge_data(&url) {
         Ok(data) => {
-            let municipalities: Vec<f64> = data.iter()
+            let municipalities: Vec<f64> = data
+                .iter()
                 .map(|d| d.date.parse::<f64>().unwrap_or(0.0))
                 .collect();
-            let values: Vec<f64> = data.iter()
-                .map(|d| d.value)
-                .collect();
-            
+            let values: Vec<f64> = data.iter().map(|d| d.value).collect();
+
             let mut result = HashMap::new();
             result.insert("municipality".to_string(), municipalities);
             result.insert("pib_milhoes".to_string(), values);
@@ -166,16 +182,15 @@ pub fn ibge_inflacao_ipc_a12(start_date: String, end_date: String) -> HashMap<St
         "https://servicodados.ibge.gov.br/api/v3/agregados/1737/periodos/{}/-/variaveis/2266?localidades=BR",
         extract_year_range(&start_date, &end_date)
     );
-    
+
     match fetch_ibge_data(&url) {
         Ok(data) => {
-            let months: Vec<f64> = data.iter()
+            let months: Vec<f64> = data
+                .iter()
                 .map(|d| d.date.parse::<f64>().unwrap_or(0.0))
                 .collect();
-            let values: Vec<f64> = data.iter()
-                .map(|d| d.value)
-                .collect();
-            
+            let values: Vec<f64> = data.iter().map(|d| d.value).collect();
+
             let mut result = HashMap::new();
             result.insert("month".to_string(), months);
             result.insert("ipca_a12".to_string(), values);
@@ -199,16 +214,15 @@ pub fn ibge_taxa_desemprego(start_date: String, end_date: String) -> HashMap<Str
         "https://servicodados.ibge.gov.br/api/v3/agregados/6372/periodos/{}/-/variaveles/4099?localidades=BR",
         extract_year_range(&start_date, &end_date)
     );
-    
+
     match fetch_ibge_data(&url) {
         Ok(data) => {
-            let months: Vec<f64> = data.iter()
+            let months: Vec<f64> = data
+                .iter()
                 .map(|d| d.date.parse::<f64>().unwrap_or(0.0))
                 .collect();
-            let values: Vec<f64> = data.iter()
-                .map(|d| d.value)
-                .collect();
-            
+            let values: Vec<f64> = data.iter().map(|d| d.value).collect();
+
             let mut result = HashMap::new();
             result.insert("month".to_string(), months);
             result.insert("unemployment_rate".to_string(), values);
@@ -228,7 +242,7 @@ pub fn ibge_taxa_desemprego(start_date: String, end_date: String) -> HashMap<Str
 #[hayashi_fn]
 pub fn cvm_empresas_cia_aberta(cnpj: String) -> HashMap<String, String> {
     let url = "https://dados.cvm.gov.br/dados/CIA_ABERTA/CAD/DADOS/cad_cia_aberta.csv";
-    
+
     match fetch_cvm_company_data(url, &cnpj) {
         Ok(company) => {
             let mut result = HashMap::new();
@@ -256,14 +270,17 @@ pub fn cvm_demonstracoes_financeiras(cnpj: String, year: i64) -> HashMap<String,
         "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/FRE/DADOS/fre_cia_aberta_{}.csv",
         year
     );
-    
+
     match fetch_cvm_financial_data(&url, &cnpj) {
         Ok(data) => {
             let mut result = HashMap::new();
             result.insert("receita_liquida".to_string(), vec![data.receita_liquida]);
             result.insert("lucro_liquido".to_string(), vec![data.lucro_liquido]);
             result.insert("ativo_total".to_string(), vec![data.ativo_total]);
-            result.insert("patrimonio_liquido".to_string(), vec![data.patrimonio_liquido]);
+            result.insert(
+                "patrimonio_liquido".to_string(),
+                vec![data.patrimonio_liquido],
+            );
             result
         }
         Err(_) => {
@@ -280,7 +297,7 @@ pub fn cvm_demonstracoes_financeiras(cnpj: String, year: i64) -> HashMap<String,
 #[hayashi_fn]
 pub fn cvm_fii_codigo(codigo: String) -> HashMap<String, String> {
     let url = "https://dados.cvm.gov.br/dados/FII/DOC/DADOS/DADOS/fii.csv";
-    
+
     match fetch_cvm_fii_data(url, &codigo) {
         Ok(fii) => {
             let mut result = HashMap::new();
@@ -365,10 +382,13 @@ struct CVMCompanyData {
     situacao: String,
 }
 
-fn fetch_cvm_company_data(url: &str, cnpj: &str) -> Result<CVMCompanyData, Box<dyn std::error::Error>> {
+fn fetch_cvm_company_data(
+    url: &str,
+    cnpj: &str,
+) -> Result<CVMCompanyData, Box<dyn std::error::Error>> {
     let response = reqwest::blocking::get(url)?;
     let text = response.text()?;
-    
+
     for line in text.lines().skip(1) {
         let parts: Vec<&str> = line.split(';').collect::<Vec<_>>();
         if parts.len() >= 4 && parts[0].trim() == cnpj {
@@ -380,7 +400,7 @@ fn fetch_cvm_company_data(url: &str, cnpj: &str) -> Result<CVMCompanyData, Box<d
             });
         }
     }
-    
+
     Err("Company not found".into())
 }
 
@@ -392,10 +412,13 @@ struct CVMFinancialData {
     patrimonio_liquido: f64,
 }
 
-fn fetch_cvm_financial_data(url: &str, cnpj: &str) -> Result<CVMFinancialData, Box<dyn std::error::Error>> {
+fn fetch_cvm_financial_data(
+    url: &str,
+    cnpj: &str,
+) -> Result<CVMFinancialData, Box<dyn std::error::Error>> {
     let response = reqwest::blocking::get(url)?;
     let text = response.text()?;
-    
+
     for line in text.lines().skip(1) {
         let parts: Vec<&str> = line.split(';').collect::<Vec<_>>();
         if parts.len() >= 5 && parts[0].trim() == cnpj {
@@ -407,7 +430,7 @@ fn fetch_cvm_financial_data(url: &str, cnpj: &str) -> Result<CVMFinancialData, B
             });
         }
     }
-    
+
     Err("Financial data not found".into())
 }
 
@@ -422,7 +445,7 @@ struct CVMFIIData {
 fn fetch_cvm_fii_data(url: &str, codigo: &str) -> Result<CVMFIIData, Box<dyn std::error::Error>> {
     let response = reqwest::blocking::get(url)?;
     let text = response.text()?;
-    
+
     for line in text.lines().skip(1) {
         let parts: Vec<&str> = line.split(';').collect::<Vec<_>>();
         if parts.len() >= 4 && parts[0].trim() == codigo {
@@ -434,7 +457,7 @@ fn fetch_cvm_fii_data(url: &str, codigo: &str) -> Result<CVMFIIData, Box<dyn std
             });
         }
     }
-    
+
     Err("FII not found".into())
 }
 
@@ -446,7 +469,7 @@ fn parse_date_to_float(date_str: &str) -> Option<f64> {
 fn extract_year_range(start_date: &str, end_date: &str) -> String {
     let start = NaiveDate::parse_from_str(start_date, "%Y-%m-%d").ok();
     let end = NaiveDate::parse_from_str(end_date, "%Y-%m-%d").ok();
-    
+
     match (start, end) {
         (Some(s), Some(e)) => {
             if s.year() == e.year() {
@@ -480,7 +503,7 @@ mod tests {
     fn test_extract_year_range() {
         let result = extract_year_range("2024-01-01", "2024-12-31");
         assert_eq!(result, "2024");
-        
+
         let result = extract_year_range("2023-01-01", "2024-12-31");
         assert_eq!(result, "2023-2024");
     }
