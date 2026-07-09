@@ -1,0 +1,10 @@
+[plugin]
+name = "haybrasil"
+version = "0.1.0"
+author = "sheep-farm"
+description = "Brazilian macroeconomic data plugin for Hayashi"
+license = "MIT"
+repository = "https://github.com/sheep-farm/haybrasil"
+
+[hayashi]
+min_version = "0.2.0"

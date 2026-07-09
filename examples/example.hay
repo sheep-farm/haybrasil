@@ -1,0 +1,60 @@
+import("sheep-farm/haybrasil", as=br)
+
+// Get Selic rate from BCB
+let selic = br::bcb_selic(432, "2024-01-01", "2024-01-30")
+print("Selic rate:")
+print(selic)
+
+// Get GDP data from BCB
+let pib = br::bcb_pib(21911, "2024-01-01", "2024-12-31")
+print("GDP data:")
+print(pib)
+
+// Get international reserves
+let reservas = br::bcb_reservas_internacionais("2024-01-01", "2024-01-30")
+print("International reserves:")
+print(reservas)
+
+// Get municipal GDP from IBGE
+let pib_municipal = br::ibge_pib_municipal(43, 2022)
+print("Municipal GDP:")
+print(pib_municipal)
+
+// Get IPCA inflation
+let ipca = br::ibge_inflacao_ipc_a12("2024-01-01", "2024-12-31")
+print("IPCA inflation:")
+print(ipca)
+
+// Get unemployment rate
+let desemprego = br::ibge_taxa_desemprego("2024-01-01", "2024-12-31")
+print("Unemployment rate:")
+print(desemprego)
+
+// Get company data from CVM
+let empresa = br::cvm_empresas_cia_aberta("00.000.000/0001-00")
+print("Company data:")
+print(empresa)
+
+// Get financial statements
+let df = br::cvm_demonstracoes_financeiras("00.000.000/0001-00", 2023)
+print("Financial statements:")
+print(df)
+
+// Get FII data
+let fii = br::cvm_fii_codigo("HGLG11")
+print("FII data:")
+print(fii)
+
+// List available series
+let series_bcb = br::series_disponiveis_bcb()
+print("Available BCB series:")
+print(series_bcb)
+
+let series_ibge = br::series_disponiveis_ibge()
+print("Available IBGE series:")
+print(series_ibge)
+
+// Convert Brazilian date format
+let data_iso = br::converter_data_brasil("01/01/2024")
+print("Converted date:")
+print(data_iso)

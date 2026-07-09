@@ -1,0 +1,12 @@
+[package]
+name = "haybrasil"
+version = "0.1.0"
+edition = "2021"
+description = "Brazilian macroeconomic data plugin for Hayashi"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+hayashi-plugin-sdk = { git = "https://github.com/sheep-farm/hayashi-plugin-sdk.git", branch = "main" }
