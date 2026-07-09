@@ -1,3 +1,4 @@
+#![allow(clippy::not_unsafe_ptr_arg_deref)]
 use hayashi_plugin_sdk::{hayashi_fn, hayashi_plugin};
 use std::collections::HashMap;
 use serde::Deserialize;
@@ -226,11 +227,9 @@ pub fn ibge_taxa_desemprego(start_date: String, end_date: String) -> HashMap<Str
 /// cnpj: company CNPJ
 #[hayashi_fn]
 pub fn cvm_empresas_cia_aberta(cnpj: String) -> HashMap<String, String> {
-    let url = format!(
-        "https://dados.cvm.gov.br/dados/CIA_ABERTA/CAD/DADOS/cad_cia_aberta.csv"
-    );
+    let url = "https://dados.cvm.gov.br/dados/CIA_ABERTA/CAD/DADOS/cad_cia_aberta.csv";
     
-    match fetch_cvm_company_data(&url, &cnpj) {
+    match fetch_cvm_company_data(url, &cnpj) {
         Ok(company) => {
             let mut result = HashMap::new();
             result.insert("cnpj".to_string(), company.cnpj);
@@ -280,11 +279,9 @@ pub fn cvm_demonstracoes_financeiras(cnpj: String, year: i64) -> HashMap<String,
 /// codigo: FII code (e.g., HGLG11)
 #[hayashi_fn]
 pub fn cvm_fii_codigo(codigo: String) -> HashMap<String, String> {
-    let url = format!(
-        "https://dados.cvm.gov.br/dados/FII/DOC/DADOS/DADOS/fii.csv"
-    );
+    let url = "https://dados.cvm.gov.br/dados/FII/DOC/DADOS/DADOS/fii.csv";
     
-    match fetch_cvm_fii_data(&url, &codigo) {
+    match fetch_cvm_fii_data(url, &codigo) {
         Ok(fii) => {
             let mut result = HashMap::new();
             result.insert("codigo".to_string(), fii.codigo);
@@ -468,7 +465,8 @@ mod tests {
 
     #[test]
     fn test_converter_data_brasil() {
-        let result = converter_data_basil("01/01/2024".to_string());
+        // converter_data_brasil tem #[hayashi_fn]; chamar __hayashi_impl_* diretamente.
+        let result = __hayashi_impl_converter_data_brasil("01/01/2024".to_string());
         assert_eq!(result, "2024-01-01");
     }
 
